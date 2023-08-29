@@ -1,0 +1,8 @@
+Easy as fu**
+Inspect in FindMe.dll, the Form have a User and Password verification:
+
+bool flag2 = this.textBox1.Text != "user0x1" && this.textBox2.Text != Form1.pword;
+public static string pword = Form1.Base64Encode("-o-o-o-o-o-o-o-o-o-o-o-o-");
+
+User-ID:	user0x1
+Name:		LW8tby1vLW8tby1vLW8tby1vLW8tby1vLQ==

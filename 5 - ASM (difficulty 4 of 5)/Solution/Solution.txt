@@ -1,0 +1,72 @@
+..===============..
+||  KEY: tW, tI  ||
+''===============''
+
+
+This crackme modifies code during runtime with user input. An intermediate and very funny crackme.
+A very entertaining crackme, when the code is executed, depending on the user input the memory address is modified,
+at first I thought it was a buffer overflow since it does not check that the input entered, and simply tried to overwrite the memory.
+When doing so I realized that the memory had changed and was not where it should be,
+i ran the program again with different inputs and saw that the memory address pointer changed.
+It is clearly seen that I applied an xor operation using dword ptr of address 0x401060 (0x9F46),
+so it simply occurred to me to use brute force (provided code) to generate 2 bytes of input that as a result would give me a jmp short loc_40107E,
+for example 0xEB11 or 0xEB0F.
+
+The provided key performs the following XOR operation:
+    9F46 ^ 7457 = EB11 -> tW
+    9F46 ^ 7449 = EB0F -> tI
+
+This disassembles to the JMP rel8 instruction, JMP 0x40107C.
+
+
+00401000    68 02 31 40 00                   PUSH       DAT_00403102                  \  *lpflOldProtect (out)
+00401005    6a 40                            PUSH       0x40                           | flNewProtect = 0x40 (PAGE_EXECUTE_READWRITE)
+00401007    68 e8 03 00 00                   PUSH       0x3e8                          | dwSize = 0x3E8 (1000)
+0040100c    68 00 10 40 00                   PUSH       entry                          | lpAddress = 0x00401000
+00401011    e8 96 00 00 00                   CALL       KERNEL32.DLL::VirtualProtect  /  Mark 1000 bytes of entry with RWX permissions.
+
+00401016    6a f5                            PUSH       -0xb                          \  
+00401018    e8 83 00 00 00                   CALL       KERNEL32.DLL::GetStdHandle     | get out channel.
+0040101d    a3 fe 30 40 00                   MOV        [stdout],EAX                  /  
+
+00401022    6a f6                            PUSH       -0xa                          \  
+00401024    e8 77 00 00 00                   CALL       KERNEL32.DLL::GetStdHandle     | get in channel.
+00401029    a3 fa 30 40 00                   MOV        [stdin],EAX                   /  
+
+0040102e    6a 00                            PUSH       0x0                           \  
+00401030    6a 00                            PUSH       0x0                            | 
+00401032    6a 1a                            PUSH       0x1a                           | Print the prompt message
+00401034    68 00 30 40 00                   PUSH       promptStr                      | "_.: eNter tHe pAsSw0rD : "
+00401039    ff 35 fe 30 40 00                PUSH       dword ptr [stdout]             | 
+0040103f    e8 6e 00 00 00                   CALL       KERNEL32.DLL::WriteConsoleA   /  
+
+00401044    6a 00                            PUSH       0x0                           \  pInputControl = NULL
+00401046    68 92 30 40 00                   PUSH       DAT_00403092                   | *lpNumberOfCharsRead (out)
+0040104b    68 64 00 00 00                   PUSH       0x64                           | nNumberOfCharsToRead = 0x64 (100)
+00401050    68 2e 30 40 00                   PUSH       input                          | lpBuffer = input
+00401055    ff 35 fa 30 40 00                PUSH       dword ptr [stdin]              | hConsoleInput = stdin
+0040105b    e8 46 00 00 00                   CALL       KERNEL32.DLL::ReadConsoleA    /  Get 100 characters of input.
+
+00401060    a1 2e 30 40 00                   MOV        EAX,[input]                   \  XOR input and
+00401065    31 05 6b 10 40 00                XOR        dword ptr [0040106b],EAX      /  instructions at 0040106b
+
+0040106b    9f                               LAHF                                     \  input = tI... makes this EB 11, EB 0F...
+0040106c    46                               INC        ESI                           /  JMP 0040107c
+
+0040106d    90                               NOP                                      \  Dead code with provided key.
+0040106e    90                               NOP                                       | Dead code with provided key.
+0040106f    34 0c                            XOR        AL,0xc                         | Dead code with provided key.
+00401071    2c 22                            SUB        AL,0x22                        | Dead code with provided key.
+00401073    34 38                            XOR        AL,0x38                        | Dead code with provided key.
+00401075    6a 00                            PUSH       0x0                            | Dead code with provided key.
+00401077    e8 1e 00 00 00                   CALL       KERNEL32.DLL::ExitProcess     /  Dead code with provided key.
+
+0040107c    6a 00                            PUSH       0x0                           \  
+0040107e    6a 00                            PUSH       0x0                            | 
+00401080    6a 14                            PUSH       0x14                           | Print the good message.
+00401082    68 1a 30 40 00                   PUSH       good_msg                       | "_.: l0gIn aCcEpTeD "
+00401087    ff 35 fe 30 40 00                PUSH       dword ptr [stdout]             | 
+0040108d    e8 20 00 00 00                   CALL       KERNEL32.DLL::WriteConsoleA   /  
+
+00401092    6a 00                            PUSH       0x0                           \  
+00401094    e8 01 00 00 00                   CALL       KERNEL32.DLL::ExitProcess     /  Exit.

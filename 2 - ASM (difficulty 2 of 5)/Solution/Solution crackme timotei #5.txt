@@ -1,0 +1,64 @@
+Solution to "timotei crackme #5"
+
+this crackme is check if a file is present on the .exe directory,
+if is present it read the first 22 bytes.
+Not another checks...
+
+The file is "timotei.crackme#5.enjoy!"
+
+This is the asm code dissembled...
+
+00401000 <t | push 0                                    |
+00401002    | push 80                                   |
+00401007    | push 3                                    |
+00401009    | push 0                                    |
+0040100B    | push 0                                    |
+0040100D    | push 80000000                             |
+00401012    | push timotei.crackme#5.403000             | 403000:"timotei.crackme#5.enjoy!"
+00401017    | call <JMP.&CreateFileA>                   | CreateFileA("timotei.crackme#5.enjoy!", 80, 0x8000000) windows api...
+0040101C    | cmp eax,FFFFFFFF                          | check if is present the key file...
+0040101F    | je timotei.crackme#5.401098               |
+00401021    | mov dword ptr ds:[403069],eax             |
+00401026    | push 0                                    |
+00401028    | push timotei.crackme#5.40306D             |
+0040102D    | push 50                                   |
+0040102F    | push timotei.crackme#5.403019             |
+00401034    | push dword ptr ds:[403069]                |
+0040103A    | call <JMP.&ReadFile>                      | read the keyfile if return 0 then exit...
+0040103F    | cmp eax,0                                 |
+00401042    | je timotei.crackme#5.401098               |
+00401044    | sub byte ptr ds:[40306D],16               |
+0040104B    | jne timotei.crackme#5.401098              |
+0040104D    | mov eax,timotei.crackme#5.403019          |
+00401052    | xor edx,edx                               | edx:EntryPoint
+00401054    | xor ecx,ecx                               | ecx:EntryPoint
+00401056    | cmp ecx,15                                | loop for read the first 21 bytes ...
+00401059    | je timotei.crackme#5.401061               |
+0040105B    | add dl,byte ptr ds:[eax]                  |
+0040105D    | inc eax                                   | bytes of the file...
+0040105E    | inc ecx                                   | i++
+0040105F    | jmp timotei.crackme#5.401056              |
+00401061    | cmp dl,byte ptr ds:[eax]                  | compare the byte if is equal = "0x00" then keyfile accepted...
+00401063    | jne timotei.crackme#5.401098              |
+00401065    | mov byte ptr ds:[eax-F],69                | 69:'i' 16 byte now is 69 idk why...
+00401069    | jne timotei.crackme#5.401098              |
+0040106B    | push timotei.crackme#5.403071             | 403071:".:keyfile:.accepted:."
+00401070    | call timotei.crackme#5.4010AC             |
+00401075    | push timotei.crackme#5.403087             | 403087:"\r\n"
+0040107A    | call timotei.crackme#5.4010AC             |
+0040107F    | push timotei.crackme#5.40308C             | 40308C:"Press any key to continue ..."
+00401084    | call timotei.crackme#5.4010AC             |
+00401089    | call timotei.crackme#5.4010F0             |
+0040108E    | push timotei.crackme#5.4030AA             | 4030AA:"\r\n"
+00401093    | call timotei.crackme#5.4010AC             |
+00401098    | push dword ptr ds:[403069]                |
+0040109E    | call <JMP.&CloseHandle>                   |
+004010A3    | push 0                                    |
+004010A5    | call <JMP.&ExitProcess>                   |
+
+Let's write a keyfile generator...
+
+we know the file is "timotei.crackme#5.enjoy!"
+with 22 bytes total all setted by "0x00"
+
+Finish... :D

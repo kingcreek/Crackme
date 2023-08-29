@@ -1,0 +1,5 @@
+Possibly a good starting point for beginners to get familiar with some debugger and look up some basic stuff.
+Simply locate the login function, the username and password are referenced without any type of encryption.
+
+Username: bignutslover99
+Password: HolyCowBalls111222
